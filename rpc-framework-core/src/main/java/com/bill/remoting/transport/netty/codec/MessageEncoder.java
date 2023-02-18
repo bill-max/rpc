@@ -29,7 +29,7 @@ public class MessageEncoder extends MessageToByteEncoder<Message> {
         byte[] bytes = serializer.serialize(data);
         //todo 数据压缩部分
         byteBuf.writeBytes(bytes);
-        int fullLength = bytes.length;
+        int fullLength = bytes.length + RpcConstants.HEAD_LENGTH;
         int curIdx = byteBuf.writerIndex();
         byteBuf.writerIndex(idx).writeInt(fullLength).writeInt(curIdx);
     }
