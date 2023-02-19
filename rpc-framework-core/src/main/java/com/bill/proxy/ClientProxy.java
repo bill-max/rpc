@@ -5,6 +5,7 @@ import com.bill.enums.ResponseCodeEnum;
 import com.bill.remoting.dto.Request;
 import com.bill.remoting.dto.Response;
 import com.bill.remoting.transport.RequestTransport;
+import com.bill.remoting.transport.netty.client.NettyClient;
 import com.bill.remoting.transport.socket.SocketClient;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,8 +23,8 @@ import java.util.concurrent.CompletableFuture;
 @Getter
 @Setter
 public class ClientProxy implements InvocationHandler {
-
     private final RequestTransport rpcRequestTransport;
+
     private final ServiceConfig rpcServiceConfig;
 
 
@@ -47,8 +48,44 @@ public class ClientProxy implements InvocationHandler {
         return (T) o;
     }
 
-    //    @SuppressWarnings("unchecked")
-////    @SneakyThrows
+    @SneakyThrows
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) {
+        log.info("invoked method: [{}]", method.getName());
+        System.out.println("method  =>> " + method.toString());
+        if (method.getName().equals("toString")) {
+            return toString();
+        }
+        Request rpcRequest = Request.builder().methodName(method.getName())
+                .parameters(args)
+                .interfaceName(method.getDeclaringClass().getName())
+                .paramTypes(method.getParameterTypes())
+                .requestId(UUID.randomUUID().toString())
+                .group(rpcServiceConfig.getGroup())
+                .version(rpcServiceConfig.getVersion())
+                .build();
+
+        System.out.println(rpcRequest.toString());
+        Response<Object> response = null;
+        //socket send request
+        if (rpcRequestTransport instanceof SocketClient) {
+            response = (Response<Object>) rpcRequestTransport.sendRequest(rpcRequest);
+        }
+        //todo netty send request
+        if (rpcRequestTransport instanceof NettyClient) {
+            CompletableFuture<Response<Object>> completableFuture = (CompletableFuture<Response<Object>>) rpcRequestTransport.sendRequest(rpcRequest);
+            response = completableFuture.get();
+        }
+        if (response == null) {
+            log.error("response is null");
+            return null;
+        }
+        return response.getData();
+    }
+
+//    @SuppressWarnings("unchecked")
+//    @SneakyThrows
 //    @Override
 //    public Object invoke(Object proxy, Method method, Object[] args) throws RuntimeException {
 //        System.out.println(" " + method.toString());
@@ -75,29 +112,4 @@ public class ClientProxy implements InvocationHandler {
 //        log.info("data===============::::" + response);
 //        return response.getData();
 //    }
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) {
-        log.info("invoked method: [{}]", method.getName());
-        System.out.println("method  =>> " + method.toString());
-        if (method.getName().equals("toString")) {
-            return toString();
-        }
-        Request rpcRequest = Request.builder().methodName(method.getName())
-                .parameters(args)
-                .interfaceName(method.getDeclaringClass().getName())
-                .paramTypes(method.getParameterTypes())
-                .requestId(UUID.randomUUID().toString())
-                .group(rpcServiceConfig.getGroup())
-                .version(rpcServiceConfig.getVersion())
-                .build();
-
-        System.out.println(rpcRequest.toString());
-        Response<Object> Response = null;
-        if (rpcRequestTransport instanceof SocketClient) {
-            Response = (Response<Object>) rpcRequestTransport.sendRequest(rpcRequest);
-        }
-        return Response.getData();
-    }
 }
