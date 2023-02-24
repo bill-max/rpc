@@ -1,5 +1,9 @@
 package com.bill.remoting.transport.netty.server;
 
+import com.bill.config.ServiceConfig;
+import com.bill.factory.SingletonFactory;
+import com.bill.provider.ServiceProvider;
+import com.bill.provider.impl.ServiceProviderImpl;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -12,13 +16,24 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class NettyServer {
     private final int port;
+    private final ServiceProvider serviceProvider = SingletonFactory.getInstance(ServiceProviderImpl.class);
+
+    public NettyServer() {
+        this.port = 9989;
+    }
 
     public NettyServer(int port) {
         this.port = port;
+    }
+
+    public void registerService(ServiceConfig rpcServiceConfig) {
+        serviceProvider.publishService(rpcServiceConfig);
     }
 
     public void run() {
@@ -45,6 +60,7 @@ public class NettyServer {
         //绑定端口
         try {
             ChannelFuture future = bootstrap.bind(port).sync();
+            log.info("future information : [{}]",future.toString());
             System.out.println("绑定端口");
             future.addListener((future1 -> {
                 if (future1.isSuccess()) {

@@ -10,4 +10,6 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Import(CustomScannerRegistrar.class)
 public @interface RpcScan {
+
+    String[] basePackage();
 }

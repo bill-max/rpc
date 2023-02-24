@@ -18,6 +18,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Getter
@@ -48,10 +49,10 @@ public class ClientProxy implements InvocationHandler {
         return (T) o;
     }
 
-    @SneakyThrows
-    @SuppressWarnings("unchecked")
+//    @SneakyThrows
+//    @SuppressWarnings("unchecked")
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) {
+    public Object invoke(Object proxy, Method method, Object[] args) throws ExecutionException, InterruptedException {
         log.info("invoked method: [{}]", method.getName());
         System.out.println("method  =>> " + method.toString());
         if (method.getName().equals("toString")) {

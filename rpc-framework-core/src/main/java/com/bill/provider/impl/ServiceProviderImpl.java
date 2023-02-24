@@ -14,17 +14,15 @@ import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 @Slf4j
 public class ServiceProviderImpl implements ServiceProvider {
-    private final Map<String, Object> serviceMap;
-    private final Set<String> registeredService;
-    private final Service service;
+    private final Map<String, Object> serviceMap = new ConcurrentHashMap<>();
+    private final Set<String> registeredService = ConcurrentHashMap.newKeySet();
+    private final Service service = new ServiceImpl();
 
 
     public ServiceProviderImpl() {
-        serviceMap = new ConcurrentHashMap<>();
-        registeredService = ConcurrentHashMap.newKeySet();
-        service = new ServiceImpl();
     }
 
     /**
@@ -48,7 +46,7 @@ public class ServiceProviderImpl implements ServiceProvider {
      */
     @Override
     public Object getService(String rpcServiceName) {
-        System.out.println("rpc name:"+rpcServiceName);
+        System.out.println("rpc name:" + rpcServiceName);
         Object service = serviceMap.get(rpcServiceName);
         if (null == service) {
             throw new RuntimeException();

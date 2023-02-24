@@ -27,20 +27,17 @@ import java.util.concurrent.ExecutionException;
 public class NettyClient implements RequestTransport {
     private final String host;
     private final int port;
-    private static final Bootstrap bootstrap;
+    private final Bootstrap bootstrap;
 
     private final Process process;
 
     private final ChannelProvider channelProvider;
 
-    public NettyClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public NettyClient() {
+        this.port = 6666;
+        this.host = "127.0.0.1";
         this.process = SingletonFactory.getInstance(Process.class);
         this.channelProvider = SingletonFactory.getInstance(ChannelProvider.class);
-    }
-
-    static {
         //创建nioEventLoop
         EventLoopGroup eventExecutors = new NioEventLoopGroup();
         //创建bootstrap
@@ -61,6 +58,7 @@ public class NettyClient implements RequestTransport {
                     }
                 });
     }
+
 
     public Response sendMessage(Request request) {
         try {
@@ -129,6 +127,7 @@ public class NettyClient implements RequestTransport {
                     log.info("The client has connected [{}] successful!", inetSocketAddress.toString());
                     completableFuture.complete(future.channel());
                 } else {
+                    log.error("state error : [{}]",future.toString());
                     throw new IllegalStateException();
                 }
             });
