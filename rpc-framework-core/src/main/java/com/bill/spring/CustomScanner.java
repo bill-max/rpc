@@ -1,6 +1,5 @@
 package com.bill.spring;
 
-//todo
 
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;

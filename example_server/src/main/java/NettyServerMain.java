@@ -5,12 +5,7 @@ import com.bill.remoting.transport.netty.server.NettyServer;
 import com.bill.service.serviceImpl.HelloServiceImpl;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-/**
- * Server: Automatic registration service via @RpcService annotation
- *
- * @author shuang.kou
- * @createTime 2020年05月10日 07:25:00
- */
+
 @RpcScan(basePackage = {"com.bill"})
 public class NettyServerMain {
     public static void main(String[] args) {

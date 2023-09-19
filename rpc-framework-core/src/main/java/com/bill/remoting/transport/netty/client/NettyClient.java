@@ -9,6 +9,7 @@ import com.bill.remoting.dto.Message;
 import com.bill.remoting.dto.Request;
 import com.bill.remoting.dto.Response;
 import com.bill.remoting.transport.RequestTransport;
+import com.bill.utils.ThreadPoolFactoryUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 public class NettyClient implements RequestTransport {
@@ -93,10 +96,7 @@ public class NettyClient implements RequestTransport {
     @Override
     public Object sendRequest(Request request) {
         // build return value
-        CompletableFuture<Response<Object>> resultFuture = CompletableFuture.supplyAsync(() -> {
-            System.out.println("processing ----");
-            return new Response<Object>();
-        });
+        CompletableFuture<Response<Object>> resultFuture = new CompletableFuture<>();
         // get server address
         Service service = new ServiceImpl();
         InetSocketAddress inetSocketAddress = service.lookupService(request, new RandomLoadBalance());
